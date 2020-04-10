@@ -63,18 +63,6 @@ class Node:
         self.node_alpha = parent_alpha
         self.node_beta = parent_beta
 
-    def within_alpha_beta(self, score):
-        if self.player.num == 1:
-            if self.node_beta is not None:
-                return score < self.node_beta
-            else:
-                return True
-        if self.player.num == 2:
-            if self.node_alpha is not None:
-                return score > self.node_alpha
-            else:
-                return True
-
     def calc_leaves_of_the_node(self, target_depth, rel_depth):
         for leaf in self.node_leaves():
             leaf_board = self.board.create_child_board()
@@ -85,7 +73,7 @@ class Node:
             leaf_node.calc_next_move_and_score(target_depth, rel_depth=rel_depth + 1)
             self.update_alpha_beta(leaf_node.node_score)
             self.leaves[leaf] = leaf_node
-            if not self.within_alpha_beta(leaf_node.node_score):
+            if self.node_alpha is not None and self.node_beta is not None and self.node_alpha >= self.node_beta:
                 break
 
     def calc_node_no_extension(self):

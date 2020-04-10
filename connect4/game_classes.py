@@ -135,7 +135,7 @@ class Board:
         return id
 
     def valid_moves(self):
-        return [entry for entry in self.widths if self.live_heights[entry] < self.height]
+        return [entry for entry in self.widths_middle_first if self.live_heights[entry] < self.height]
 
     def is_on_board(self, coord):
         return (coord.x in self.widths) and (coord.y in self.heights)
