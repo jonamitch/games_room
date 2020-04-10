@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <h1>Live account data</h1>
+    <span id="account_data">
+        <p>Account data</p>
+    </span>
+    <span id="live_data_flag">
+        <p>Note: data is not being live updated</p>
+    </span>
+
+
+
+    <h1>Trade breakdown</h1>
+
+{% endblock %}
+
+{% block template_script %}
+    <script src="https://js.pusher.com/4.4/pusher.min.js"></script>
+    <script>
+        const pusher_key = {{ pusher_key|tojson}}
+        const pusher_cluster = {{ pusher_cluster|tojson }}
+    </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='update_account.js') }}"></script>
+{% endblock %}
