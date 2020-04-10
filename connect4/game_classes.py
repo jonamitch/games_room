@@ -52,6 +52,7 @@ class Board:
         self.heights = range(self.height)
         self.width = len(grid[0])
         self.widths = range(self.width)
+        self.widths_middle_first = sorted(self.widths, key = lambda x: abs(x - self.widths[len(self.widths) // 2]))
         self.fours = []
         self.calc_fours()
         self.four_dict = {}

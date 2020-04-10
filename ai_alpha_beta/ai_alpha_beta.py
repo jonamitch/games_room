@@ -48,13 +48,13 @@ class Node:
 
     def update_alpha_beta(self, score):
         if self.player.num == 1:
-            if self.node_alpha:
+            if self.node_alpha is not None:
                 self.node_alpha = max(self.node_alpha, score)
             else:
                 self.node_alpha = score
 
         else:
-            if self.node_beta:
+            if self.node_beta is not None:
                 self.node_beta = min(self.node_beta, score)
             else:
                 self.node_beta = score
@@ -65,13 +65,13 @@ class Node:
 
     def within_alpha_beta(self, score):
         if self.player.num == 1:
-            if self.node_beta:
-                return score <= self.node_beta
+            if self.node_beta is not None:
+                return score < self.node_beta
             else:
                 return True
         if self.player.num == 2:
-            if self.node_alpha:
-                return score >= self.node_alpha
+            if self.node_alpha is not None:
+                return score > self.node_alpha
             else:
                 return True
 
@@ -92,7 +92,7 @@ class Node:
         return self.board.score
 
     def calc_next_move_and_score(self, target_depth, rel_depth=0):
-        score_cache_success = self.load_scores_from_cache(target_depth - rel_depth)
+        score_cache_success = False # self.load_scores_from_cache(target_depth - rel_depth)
         if not score_cache_success:
             if rel_depth == target_depth or self.board.winner:
                 Global.NUM_CALCULATIONS += 1
