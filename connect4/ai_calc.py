@@ -4,6 +4,7 @@ from random import randint
 from copy import deepcopy
 from copy import copy
 
+
 # TODO - add testing that cache and alpha beta do not change the result for different player_1 sequences
 class Global:
     NUM_CACHES = 0

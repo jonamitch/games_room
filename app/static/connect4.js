@@ -12,10 +12,8 @@ var lock = null;
 
 function selectColumn(col) {
     colString = col.toString()
-    console.log(lock);
     if (!winner && !lock) {
         lock = true;
-        console.log(lock);
         request_human = {"entryCol": colString, "grid": JSON.stringify(grid), "player": player}
         $.post('/connect4/entryCol', request_human).done(function(response_human) {
             updateForResponse(response_human)
