@@ -66,16 +66,18 @@ function refreshGrid() {
 
 //A function used to reset the connect4 grid on screen
 function resetGrid() {
-    grid = [
-        [0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0]
-    ];
-    player=1;
-    document.getElementById("colorTurn").innerHTML="Human (Yellow)";
-    winner = null;
-    refreshGrid();
+    if (!lock) {
+        grid = [
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0]
+        ];
+        player=1;
+        document.getElementById("colorTurn").innerHTML="Human (Yellow)";
+        winner = null;
+        refreshGrid();
+    }
 }

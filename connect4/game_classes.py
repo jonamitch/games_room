@@ -195,7 +195,7 @@ class Board:
         self.score_details = score
         self.score = score[0]
 
-    def add_counter(self, entry, player):
+    def play_move(self, entry, player):
         height = self.live_heights[entry]
         if height < self.height:
             new_entry = Position(entry, height)

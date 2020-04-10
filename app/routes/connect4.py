@@ -4,7 +4,7 @@ Connect4 AI Flask application for Python - defines the routes and associated met
 """
 from flask import render_template, jsonify, request
 from app import app
-from connect4 import make_player_move, make_ai_move
+from connect4 import make_move
 import json
 import logging
 
@@ -30,10 +30,7 @@ def connect4_col_entry():
     else:
         raise Exception('GET method not allowed')
 
-    if entry_col is not None:
-        new_board, position = make_player_move(grid, player, entry_col)
-    else:
-        new_board, position = make_ai_move(grid, player, app.config['AI_TREE_DEPTH'])
+    new_board, position = make_move(grid, player, entry_col=entry_col, depth=app.config['AI_TREE_DEPTH'])
 
     return jsonify([{'grid': new_board.create_grid_from_board(), 'winner': new_board.winner, 'position': position}])
 
