@@ -54,7 +54,7 @@ if __name__ == '__main__':
                 print('Player {} played into column: {}'.format(player.num, suggested_move + 1))
             print(board)
             player = player.next_player()
-        print('Player {} wins!'.format(board.winner.num))
+        print('Player {} wins!'.format(board.winner))
         print('#############################')
         stop_text = input("Input 'Y' to play again:")
         if stop_text != 'Y' and stop_text != 'y':

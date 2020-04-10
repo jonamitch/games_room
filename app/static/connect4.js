@@ -7,23 +7,47 @@ var grid = [
   [0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0]
 ];
+var winner = null;
+var lock = null;
 
 function selectColumn(col) {
-    var colstring = col.toString()
-    $.get('/connect4/' + colstring
-    ).done(function(response) {
-        grid = response[0].grid
-        if (player==1) {
-            player=2;
-            document.getElementById("colorTurn").innerHTML="AI (Red)";
-        } else {
-            player=1;
-            document.getElementById("colorTurn").innerHTML="Human (Yellow)";
-        }
-        refreshGrid();
-    }).fail(function() {
-        document.getElementById("colorTurn").innerHTML="Error";
-    });
+    colString = col.toString()
+    console.log(lock);
+    if (!winner && !lock) {
+        lock = true;
+        console.log(lock);
+        request_human = {"entryCol": colString, "grid": JSON.stringify(grid), "player": player}
+        $.post('/connect4/entryCol', request_human).done(function(response_human) {
+            updateForResponse(response_human)
+            if (!winner) {
+                request_ai = {"grid": JSON.stringify(grid), "player": player}
+                $.post('/connect4/entryCol', request_ai).done(function(response_ai) {
+                    updateForResponse(response_ai)
+                    lock = null;
+                }).fail(function() {
+                    document.getElementById("colorTurn").innerHTML="Error";
+                });
+            }
+        }).fail(function() {
+            document.getElementById("colorTurn").innerHTML="Error";
+        });
+    }
+}
+
+function updateForResponse(response) {
+    grid = response[0].grid;
+    winner = response[0].winner;
+    position = response[0].position;
+    refreshGrid();
+    if (winner) {
+        document.getElementById("colorTurn").innerHTML="We have a winner! Player: " + player.toString();
+    } else if (player==1 && position) {
+        player=2;
+        document.getElementById("colorTurn").innerHTML="AI player 2 (Red)"
+    } else if (position) {
+        player=1;
+        document.getElementById("colorTurn").innerHTML="Human player 1 (Yellow)";
+    }
 }
 
 
@@ -54,5 +78,6 @@ function resetGrid() {
     ];
     player=1;
     document.getElementById("colorTurn").innerHTML="Human (Yellow)";
+    winner = null;
     refreshGrid();
 }

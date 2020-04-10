@@ -1,5 +1,5 @@
 from time import perf_counter
-from utils import time_func
+from .utils import time_func
 from random import randint
 from copy import deepcopy
 from copy import copy

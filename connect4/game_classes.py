@@ -1,5 +1,6 @@
-from caching import cache_score_of_board
+from .caching import cache_score_of_board
 from copy import copy, deepcopy
+
 
 class Position:
     def __init__(self, x, y):
@@ -45,23 +46,50 @@ class Vector:
 
 
 class Board:
-    def __init__(self, width, height):
+    def __init__(self, grid):
         self.right_up_directions = [Position(0, 1), Position(1, 1), Position(1, 0), Position(1, -1)]
-        self.height = height
-        self.heights = range(height)
-        self.width = width
-        self.widths = range(width)
+        self.height = len(grid)
+        self.heights = range(self.height)
+        self.width = len(grid[0])
+        self.widths = range(self.width)
         self.fours = []
         self.calc_fours()
         self.four_dict = {}
         self.calc_four_dict()
 
         self.live_heights = {entry: 0 for entry in self.widths}
+        self.live_heights = {}
         self.active_positions_1 = set()
         self.active_positions_2 = set()
+        self.create_board_from_grid(grid)
         self.winner = None
         self.score_details = {}
         self.score = None
+
+    def create_grid_from_board(self):
+        grid = [[0 for _ in self.widths] for _ in self.heights]
+        for position in self.active_positions_1:
+            grid[self.height - position.y - 1][position.x] = 1
+        for position in self.active_positions_2:
+            grid[self.height - position.y - 1][position.x] = 2
+        return grid
+
+    def create_board_from_grid(self, grid):
+        for grid_row_num, row in enumerate(grid):
+            row_num = self.height - grid_row_num - 1
+            for col_num, cell in enumerate(row):
+                if cell == 0:
+                    continue
+                if col_num not in self.live_heights:
+                    self.live_heights[col_num] = row_num + 1
+                position = Position(col_num, row_num)
+                if cell == 1:
+                    self.active_positions_1.add(position)
+                else:
+                    self.active_positions_2.add(position)
+        for col in self.widths:
+            if col not in self.live_heights:
+                self.live_heights[col] = 0
 
     def create_child_board(self):
         child_board = copy(self)
@@ -69,8 +97,8 @@ class Board:
         child_board.active_positions_2 = copy(self.active_positions_2)
         child_board.live_heights = copy(self.live_heights)
         child_board.score_details = copy(self.score_details)
-        child_board.winner = copy(self.winner)
-        child_board.score = copy(self.score)
+        child_board.winner = self.winner
+        child_board.score = self.score
         return child_board
 
     def __repr__(self):
@@ -161,7 +189,7 @@ class Board:
                 for player_num in [1, 2]:
                     if vector_score[player_num - 1] > 0:
                         if vector_score[2] == 0:
-                            self.winner = Player(player_num)
+                            self.winner = Player(player_num).num
                         score[player_num] += 10 ** max(6 - vector_score[2], 0)
         score[0] = score[1] - score[2]
         self.score_details = score
