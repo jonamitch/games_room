@@ -1,5 +1,4 @@
 import pandas as pd
-import pickle
 import os
 from football_predictor.utils import get_from_pickle_cache, add_to_pickle_cache
 
@@ -9,39 +8,36 @@ DATA_FOLDER = './data/'
 PICKLE_CACHE_FOLDER = './data/pickle_cache/'
 
 
-class FootballData:
-    @classmethod
-    def __getCache(cls, league_list, year_list, add_goals_scored_model_odds, create_team_series, override_cache):
-        """ Return cached object """
-        if override_cache:
-            return
-        cache_id = '{}-{}-{}-{}'.format(league_list, year_list, add_goals_scored_model_odds, create_team_series)
-        o = get_from_pickle_cache(cache_id)
-        if o:
-            return o
+class FootballDataFactory:
+    def __init__(self):
+        return
 
-    def __new__(cls, league_list=LEAGUES, year_list=YEARS, specified_folder=DATA_FOLDER,
-                add_goals_scored_model_odds=True,
-                create_team_series=True,
-                override_cache=False):
-        """ Initilize the class and start processing """
-        existing = cls.__getCache(league_list, year_list, add_goals_scored_model_odds, create_team_series,
-                                  override_cache)
-        if existing:
-            return existing
-        football_data = super(FootballData, cls).__new__(cls)
+    @staticmethod
+    def create_football_data(league_list=LEAGUES, year_list=YEARS, specified_folder=DATA_FOLDER,
+                             add_goals_scored_model_odds=True,
+                             create_team_series=True,
+                             override_cache=False):
+        cache_id = '{}-{}-{}-{}'.format(league_list, year_list, add_goals_scored_model_odds, create_team_series)
+        if override_cache:
+            football_data = FootballData(league_list, year_list, specified_folder, add_goals_scored_model_odds,
+                                         create_team_series)
+            print('Data loaded from raw files')
+            add_to_pickle_cache(football_data, cache_id)
+            print('Data saved to cache: {}'.format(cache_id))
+        else:
+            football_data = get_from_pickle_cache(cache_id)
+            print('Data loaded from cache')
         return football_data
 
-    def __init__(self, league_list=LEAGUES, year_list=YEARS, specified_folder=DATA_FOLDER,
-                 add_goals_scored_model_odds=True,
-                 create_team_series=True,
-                 override_cache=False):
-        cache_id = '{}-{}-{}-{}'.format(league_list, year_list, add_goals_scored_model_odds, create_team_series)
-        cache_success = get_from_pickle_cache(cache_id)
-        if cache_success and not override_cache:
-            print('Data loaded from cache')
-            return
-        self.full_df = self.get_raw_data_frame(league_list, year_list, specified_folder)
+
+class FootballData:
+    def __init__(self, league_list, year_list, specified_folder,
+                 add_goals_scored_model_odds,
+                 create_team_series):
+        self.league_list = league_list
+        self.year_list = year_list
+        self.raw_data_folder = specified_folder
+        self.full_df = self.get_raw_data_frame()
         self.team_series = None
 
         if add_goals_scored_model_odds:
@@ -50,13 +46,7 @@ class FootballData:
         if create_team_series:
             self.team_series = self.create_team_series_dict()
 
-        print('Data loaded from raw files')
-
-        add_to_pickle_cache(self, cache_id)
-        print('Data saved to cache: {}'.format(cache_id))
-
-    def get_raw_data_frame(self, league_list, year_list, specified_folder,
-                           add_goals_scored_model_odds=True):
+    def get_raw_data_frame(self):
         league_df_list = []
 
         def dateparse(dates):
@@ -68,10 +58,10 @@ class FootballData:
                     parsed_dates.append(pd.datetime.strptime(date, '%d/%m/%Y'))
             return parsed_dates
 
-        file_names = ['{}-{}'.format(league, year) for league in league_list for year in year_list]
+        file_names = ['{}-{}'.format(league, year) for league in self.league_list for year in self.year_list]
 
         for file_name in file_names:
-            file_path = os.path.join(specified_folder, '{}.csv'.format(file_name))
+            file_path = os.path.join(self.raw_data_folder, '{}.csv'.format(file_name))
             league_df = pd.read_csv(file_path, sep=',', parse_dates=['Date'], date_parser=dateparse)
             league_df_list.append(league_df)
 
@@ -121,6 +111,6 @@ class FootballData:
 
 
 if __name__ == '__main__':
-    DATA = FootballData()
+    DATA = FootballDataFactory().create_football_data()
 
     print(DATA.full_df)
