@@ -1,4 +1,5 @@
 import pandas as pd
+from datetime import datetime
 import os
 from football_predictor.utils import get_from_pickle_cache, add_to_pickle_cache
 
@@ -53,9 +54,9 @@ class FootballData:
             parsed_dates = []
             for date in dates:
                 if len(date) == 8:
-                    parsed_dates.append(pd.datetime.strptime(date, '%d/%m/%y'))
+                    parsed_dates.append(datetime.strptime(date, '%d/%m/%y'))
                 else:
-                    parsed_dates.append(pd.datetime.strptime(date, '%d/%m/%Y'))
+                    parsed_dates.append(datetime.strptime(date, '%d/%m/%Y'))
             return parsed_dates
 
         file_names = ['{}-{}'.format(league, year) for league in self.league_list for year in self.year_list]
@@ -95,10 +96,10 @@ class FootballData:
 
     def create_team_series_dict(self):
         team_series = {}
-        df = self.full_df
-        for season in df.index.get_level_values('season_id').unique():
+        full_df = self.full_df
+        for season in full_df.index.get_level_values('season_id').unique():
             team_series[season] = {}
-            season_df = df.loc[season]
+            season_df = full_df.loc[season]
             for team in season_df['HomeTeam'].unique():
                 team_df = season_df.loc[(season_df['HomeTeam'] == team) | (season_df['AwayTeam'] == team)].sort_values(
                     'Date')
