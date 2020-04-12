@@ -1,3 +1,4 @@
-# secrets
 secrets.py
-.idea
+.idea/
+/football_predictor/data/
+/venv/
