@@ -2,8 +2,10 @@ import pickle
 import os
 PICKLE_CACHE_FOLDER = './data/pickle_cache/'
 
+
 class Globals:
     LOCK = False
+
 
 def get_from_pickle_cache(cache_id, cache_location=PICKLE_CACHE_FOLDER):
     if Globals.LOCK:
@@ -28,3 +30,14 @@ def add_to_pickle_cache(obj, cache_id, cache_location=PICKLE_CACHE_FOLDER):
 
     return
 
+
+def convert_odds_to_dec_probability(odds):
+    if odds == 0:
+        return None
+    return 1 / odds
+
+
+def convert_dec_probability_to_dds(prob):
+    if prob == 0:
+        return None
+    return 1 / prob

@@ -1,4 +1,5 @@
 from football_predictor.data_loader import FootballDataFactory
+from football_predictor.profit_function import NumGoalsProfit
 
 
 class BackTesting:
@@ -15,14 +16,17 @@ class BackTesting:
         print('Finished back test, producing results...')
 
         full_df.reset_index(inplace=True)
-        self.profit_summary = full_df.groupby(['season_id'])['profit'].sum()
+        self.profit_summary_by_season = full_df.groupby(['season_id'])['profit'].sum()
+        self.profit_summary_by_league = full_df.groupby(['Div'])['profit'].sum()
         print('Back test complete')
 
 
 if __name__ == '__main__':
     FOOTBALL_DATA = FootballDataFactory().create_football_data(override_cache=False)
-    BACK_TESTING = BackTesting(FOOTBALL_DATA, lambda row: 1)
+    PROFIT_FUNCTION = NumGoalsProfit(FOOTBALL_DATA)
+    BACK_TESTING = BackTesting(FOOTBALL_DATA, PROFIT_FUNCTION.profit_function)
     BACK_TESTING.run_back_test()
 
-    print(BACK_TESTING.profit_summary)
+    print(BACK_TESTING.profit_summary_by_season)
+    print(BACK_TESTING.profit_summary_by_league)
 

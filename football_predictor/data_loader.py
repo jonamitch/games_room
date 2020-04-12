@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from datetime import datetime
 import os
 from football_predictor.utils import get_from_pickle_cache, add_to_pickle_cache
@@ -80,6 +81,9 @@ class FootballData:
         goals_scored_df_groupby = goals_scored_df.groupby(['season_id']).count()
 
         # Based on the above, we create the a standard goals scored odds column
+        for metric in ['GB>2.5', 'BbAv>2.5', 'Avg>2.5', 'GB<2.5', 'BbAv<2.5', 'Avg<2.5']:
+            if metric not in df:
+                df[metric] = np.nan
         df['model>2.5'] = df['GB>2.5'].fillna(0) + \
                           df['BbAv>2.5'].fillna(0) + \
                           df['Avg>2.5'].fillna(0)
@@ -110,8 +114,20 @@ class FootballData:
                                              'all': team_df}
         return team_series
 
+    def get_team_form(self, season, date, team, num_prev_matches=None, fixture='all'):
+        team_form = self.team_series[season][team][fixture]
+        if date is None:
+            recent_team_form = team_form
+        else:
+            recent_team_form = team_form.loc[team_form['Date'] < date]
+        if num_prev_matches is None:
+            return recent_team_form
+        if recent_team_form.shape[0] < num_prev_matches:
+            return None
+        return recent_team_form[-num_prev_matches:]
+
 
 if __name__ == '__main__':
-    DATA = FootballDataFactory().create_football_data()
+    DATA = FootballDataFactory().create_football_data(override_cache=True)
 
     print(DATA.full_df)
