@@ -1,4 +1,4 @@
 secrets.py
 .idea/
-/football_predictor/data/
+/football_predictor/data/pickle_cache
 /venv/
