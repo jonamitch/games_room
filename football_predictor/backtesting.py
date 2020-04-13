@@ -22,7 +22,7 @@ class BackTesting:
 
 
 if __name__ == '__main__':
-    FOOTBALL_DATA = FootballDataFactory().create_football_data(override_cache=False)
+    FOOTBALL_DATA = FootballDataFactory().create_football_data(override_cache=False, year_list=[2011], league_list=['E0'])
     PROFIT_FUNCTION = NumGoalsProfit(FOOTBALL_DATA)
     BACK_TESTING = BackTesting(FOOTBALL_DATA, PROFIT_FUNCTION.profit_function)
     BACK_TESTING.run_back_test()

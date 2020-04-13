@@ -20,15 +20,18 @@ class FootballDataFactory:
                              create_team_series=True,
                              override_cache=False):
         cache_id = '{}-{}-{}-{}'.format(league_list, year_list, add_goals_scored_model_odds, create_team_series)
-        if override_cache:
-            football_data = FootballData(league_list, year_list, specified_folder, add_goals_scored_model_odds,
-                                         create_team_series)
-            print('Data loaded from raw files')
-            add_to_pickle_cache(football_data, cache_id)
-            print('Data saved to cache: {}'.format(cache_id))
-        else:
+        if not override_cache:
             football_data = get_from_pickle_cache(cache_id)
-            print('Data loaded from cache')
+            if football_data:
+                print('Data loaded from cache')
+                return football_data
+
+        football_data = FootballData(league_list, year_list, specified_folder, add_goals_scored_model_odds,
+                                     create_team_series)
+        print('Data loaded from raw files')
+        add_to_pickle_cache(football_data, cache_id)
+        print('Data saved to cache: {}'.format(cache_id))
+
         return football_data
 
 

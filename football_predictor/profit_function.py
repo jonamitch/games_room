@@ -1,5 +1,5 @@
 from math import exp, factorial
-from football_predictor.utils import convert_odds_to_dec_probability
+from football_predictor.utils import convert_odds_to_dec_probability, convert_dec_probability_to_dds
 
 
 class NumGoalsProfit:
@@ -49,25 +49,33 @@ class NumGoalsProfit:
         for home_goals in range(x):
             for away_goals in range(x):
                 if home_goals + away_goals < x:
-                    home_goal_prob = self._calc_probability_goals_under_x(home_goals, average_recent_home_goals)
-                    away_goal_prob = self._calc_probability_goals_under_x(away_goals, average_recent_away_goals)
+                    home_goal_prob = self._calc_probability_goals_under_x(home_goals, average_home_goals)
+                    away_goal_prob = self._calc_probability_goals_under_x(away_goals, average_away_goals)
                     prob_under_x += home_goal_prob * away_goal_prob
 
         return prob_under_x
 
-    def _make_bet_decision_under_3(self, row, prob_under_3, buffer=0.2):
+    def _make_bet_decision_under_3(self, row, prob_under_3, buffer=0.1, buffer_applied_to_dec=True):
         if prob_under_3 is None:
             return None
         odds_under = row['model<2.5']
         odds_over = row['model>2.5']
 
         try:
-            if (prob_under_3 - convert_odds_to_dec_probability(odds_under)) > buffer:
-                return ('under', 1)
-            elif (1 - prob_under_3) - convert_odds_to_dec_probability(odds_over) > buffer:
-                return ('over', 1)
+            if buffer_applied_to_dec:
+                if (prob_under_3 - convert_odds_to_dec_probability(odds_under)) > buffer:
+                    return 'under', 1
+                elif (1 - prob_under_3) - convert_odds_to_dec_probability(odds_over) > buffer:
+                    return 'over', 1
+                else:
+                    return None
             else:
-                return None
+                if odds_under - convert_dec_probability_to_dds(prob_under_3) > buffer:
+                    return 'under', 1
+                elif odds_over - (convert_dec_probability_to_dds(1 - prob_under_3)) > buffer:
+                    return 'over', 1
+                else:
+                    return None
         except TypeError:
             return None
 
@@ -82,7 +90,7 @@ class NumGoalsProfit:
         return 0
 
     def profit_function(self, row):
-        prob_under_3 = self._predict_probability_under_x(row, lookback_period=10)
-        place_bet = self._make_bet_decision_under_3(row, prob_under_3)
+        prob_under_3 = self._predict_probability_under_x(row, lookback_period=3)
+        place_bet = self._make_bet_decision_under_3(row, prob_under_3, buffer=0.1, buffer_applied_to_dec=False)
         profit = self._calculate_profit(place_bet, row)
         return profit
